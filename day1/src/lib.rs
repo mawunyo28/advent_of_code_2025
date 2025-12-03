@@ -1,18 +1,15 @@
-const DIAL_END: u32 = 99;
-const DIAL_START: u32 = 0;
+const DIAL_END: i16 = 99;
+const DIAL_START: i16 = 0;
+
+static DIAL_SIZE: i16 = DIAL_END - DIAL_START + 1;
 
 pub struct Dial {
-    value: u32,
-    zero_count: u32,
-}
-
-trait Ops {
-    fn add(&mut self, rhs: u32);
-    fn sub(&mut self, rhs: u32);
+    value: i16,
+    zero_count: i16,
 }
 
 impl Dial {
-    pub fn new(starting_point: u32) -> Self {
+    pub fn new(starting_point: i16) -> Self {
         Dial {
             value: starting_point,
             zero_count: 0,
@@ -20,17 +17,19 @@ impl Dial {
     }
 
     // retrieve sum of values
-    pub fn value(&self) -> u32 {
+    pub fn value(&self) -> i16 {
         self.value
     }
 
     // retrieve number of zeros counted
-    pub fn zero_count(&self) -> u32 {
+    pub fn zero_count(&self) -> i16 {
         self.zero_count
     }
 
-    pub fn move_left(&mut self, by: u32) {
-        self.sub(by);
+    pub fn move_left(&mut self, by: i16) {
+        // println!("before move L{by} value = {}", self.value);
+        self.value = (self.value - by).rem_euclid(DIAL_SIZE);
+        // println!("after move L{by} value = {}", self.value);
 
         // check if dial lands on zero then increase zero count
         if self.value == 0 {
@@ -38,50 +37,14 @@ impl Dial {
         }
     }
 
-    pub fn move_right(&mut self, by: u32) {
-        self.add(by);
+    pub fn move_right(&mut self, by: i16) {
+        // println!("before move R{by} value = {}", self.value);
+        self.value = (self.value + by).rem_euclid(DIAL_SIZE);
 
+        // println!("after move R{by} value = {}", self.value);
         // check if dial lands on zero then increase zero count
         if self.value == 0 {
             self.zero_count += 1;
         }
-    }
-}
-
-impl Ops for Dial {
-    fn add(&mut self, rhs: u32) {
-        let mut result = self.value + rhs;
-        //
-        // println!(
-        //     "Current Value: {}, rhs: {}, before add(result = {})",
-        //     self.value, rhs, result
-        // );
-
-        while result > DIAL_END {
-            // zero inclusize
-            result = result - (DIAL_END + 1);
-        }
-
-        // println!("\tAfter add(result = {result})");
-        self.value = result;
-    }
-
-    fn sub(&mut self, rhs: u32) {
-        let mut result = self.value as i32 - rhs as i32;
-
-        // println!(
-        //     "Current Value: {}, rhs: {}, before sub(result = {})",
-        //     self.value, rhs, result
-        // );
-        //
-        while result < (DIAL_START as i32) {
-            // result is alread negative
-            // zero inclusize that is why there is + 1
-            result = (DIAL_END as i32) + result + 1;
-        }
-
-        // println!("\tAfter sub(result = {result})");
-
-        self.value = result as u32;
     }
 }

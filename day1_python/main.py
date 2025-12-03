@@ -9,22 +9,18 @@ def main():
     container = []
     with open(filename, 'r') as file:
         for line in file:
-            characters = list(line.strip())
-            characters.reverse()
-            direction = characters.pop().upper()
-            characters.reverse()
+            line = line.strip()
+            if not line:
+                continue
+            
+            direction = line[0]
 
-            move_amount = int("".join(characters))
+            move_amount = int(line[1:]) 
+            if direction == "L":
+                dial.move_left(move_amount)
+            elif direction == "R":
+                dial.move_right(move_amount)
 
-            container.append((direction, move_amount))
-    
-    for direction, move_amount in container:
-        # print(direction, move_amount)
-        if direction == "L":
-            dial.move_left(move_amount)
-        elif direction == "R":
-            dial.move_right(move_amount)
-        
     print(f"sum is {dial.value}")
     print(f"password is {dial.zero_count}")
             

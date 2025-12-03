@@ -15,38 +15,22 @@ fn main() -> Result<(), Error> {
 
     let lines = buffer.lines();
 
-    let container: Vec<(char, u32)> = lines
-        .map(|line| {
-            let line = line.unwrap(); // Todo: handle errors
-            // println!("{line}");
+    let _: Vec<_> = lines.map(|line| {
+        let line = line.unwrap(); // Todo: handle errors
+        // println!("{line}");
 
-            let line = line.trim();
+        let line = line.trim().to_string();
+        if let (Some(direction), Some(number_str)) = (line.get(0..1), line.get(1..)) {
+            let move_amount = number_str.to_string().parse::<i16>().unwrap();
+            let direction = direction.to_ascii_uppercase();
 
-            let mut characters: Vec<char> = line.chars().collect();
-
-            characters.reverse();
-
-            let direction = characters.pop().unwrap().to_ascii_uppercase();
-
-            characters.reverse();
-
-            let characters = characters.iter().collect::<String>();
-
-            let move_amount = characters.parse::<u32>().unwrap();
-
-            (direction, move_amount)
-        })
-        .collect();
-
-    for (direction, move_amount) in &container {
-        match direction {
-            'L' => dial.move_left(*move_amount),
-            'R' => dial.move_right(*move_amount),
-            _ => (),
+            match direction.as_str() {
+                "L" => dial.move_left(move_amount),
+                "R" => dial.move_right(move_amount),
+                _ => (),
+            }
         }
-    }
-
-    // println!("{:?}", container);
+    }).collect();
 
     println!("sum is {}", dial.value());
     println!("password is {}", dial.zero_count());
