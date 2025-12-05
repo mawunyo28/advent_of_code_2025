@@ -27,24 +27,57 @@ impl Dial {
     }
 
     pub fn move_left(&mut self, by: i16) {
-        // println!("before move L{by} value = {}", self.value);
-        self.value = (self.value - by).rem_euclid(DIAL_SIZE);
-        // println!("after move L{by} value = {}", self.value);
+        let prev = self.value;
+        let result = self.value - by;
 
-        // check if dial lands on zero then increase zero count
-        if self.value == 0 {
+        // println!(
+        //     "before move L{by} value = {} zero_count = {}, result = {}",
+        //     self.value, self.zero_count, result
+        // );
+
+        // Calculate new position
+        self.value = result.rem_euclid(DIAL_SIZE);
+
+        // Count zero crossings
+        // How many complete counter-clockwise rotations?
+        let zeros = by / DIAL_SIZE;
+        self.zero_count += zeros;
+
+        // Check if we cross zero in the partial rotation
+        // We cross zero if we're not starting at zero AND
+        // the remainder of the move is greater than our starting position
+        let remainder = by % DIAL_SIZE;
+
+        if prev > 0 && remainder >= prev {
             self.zero_count += 1;
         }
+        //
+        // println!(
+        //     "\tafter move L{by} value = {}, zero_count = {}",
+        //     self.value, self.zero_count
+        // );
     }
 
     pub fn move_right(&mut self, by: i16) {
-        // println!("before move R{by} value = {}", self.value);
-        self.value = (self.value + by).rem_euclid(DIAL_SIZE);
+        let result = self.value + by;
 
-        // println!("after move R{by} value = {}", self.value);
-        // check if dial lands on zero then increase zero count
-        if self.value == 0 {
-            self.zero_count += 1;
-        }
+        // println!(
+        //     "before move R{by} value = {} zero_count = {}, result = {}",
+        //     self.value, self.zero_count, result
+        // );
+
+        // Calculate new position
+        self.value = result.rem_euclid(DIAL_SIZE);
+
+        // Count zero crossings
+        // Formula: (current_position + movement) / DIAL_SIZE
+        // This counts each time we pass through or land on 0
+        let zeros = result / DIAL_SIZE;
+        self.zero_count += zeros;
+
+        // println!(
+        //     "\tafter move R{by} value = {}, zero_count = {}",
+        //     self.value, self.zero_count
+        // );
     }
 }
